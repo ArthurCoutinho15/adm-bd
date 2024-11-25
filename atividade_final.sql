@@ -246,21 +246,20 @@ CREATE ROLE Acesso1;
 GRANT SELECT ON *.* TO Acesso1;
 
 CREATE ROLE Acesso2;
-GRANT SELECT, INSERT ON database_name.carros TO Acesso2;
+GRANT SELECT, INSERT ON newtonloc.carros TO Acesso2;
 
 CREATE ROLE Acesso3; 
 GRANT ALL PRIVILEGES ON *.* TO Acesso3 WITH GRANT OPTION;
 
 CREATE ROLE Acesso4; 
-GRANT CREATE, ALTER, DROP ON database_name.* TO Acesso4;
+GRANT CREATE, ALTER, DROP ON newton_loc.* TO Acesso4;
 
 CREATE ROLE Acesso5;  
-GRANT ALL PRIVILEGES ON database_name.* TO Acesso5;
+GRANT ALL PRIVILEGES ON newtonloc.* TO Acesso5;
 
-#7. Entre os usuários criados acima, altere as permissões de 5. A sua escolha.
 
 CREATE USER 'user1'@'localhost' IDENTIFIED BY 'password1';
-GRANT Acesso1 TO 'user1'@'localhost';
+GRANT Acesso1 TO 'user1'@'localhost'; 
 
 CREATE USER 'user2'@'localhost' IDENTIFIED BY 'password2';
 GRANT Acesso2 TO 'user2'@'localhost';
@@ -289,7 +288,7 @@ GRANT Acesso4 TO 'user9'@'localhost';
 CREATE USER 'user10'@'localhost' IDENTIFIED BY 'password10';
 GRANT Acesso5 TO 'user10'@'localhost';
 
-
+#7. Entre os usuários criados acima, altere as permissões de 5. A sua escolha.
 REVOKE Acesso1 FROM 'user6'@'localhost';
 GRANT Acesso2 TO 'user6'@'localhost';
 
@@ -365,8 +364,11 @@ SELECT AVG(d.quilometragemFinal) AS quilometragem_media
 FROM devolucao d;
 
 -- 9. Qual carro tem a maior quilometragem atual?
-SELECT modelo, MAX(quilometragem) AS quilometragem_maxima
-FROM carros;
+SELECT a.modelo, a.quilometragem
+FROM carros as a where a.quilometragem  = (
+	select max(quilometragem)
+    from carros
+);
 
 -- 10. Quais carros foram alugados mais de 5 vezes?
 SELECT car.modelo, COUNT(*) AS total_alugueis
@@ -374,6 +376,32 @@ FROM carros car
 JOIN locacao l ON car.idCarro = l.fk_idCarro
 GROUP BY car.modelo
 HAVING total_alugueis > 5;
+
+-- 10. Quilometragem  e porta mala dos carros SUV
+select categoria, modelo, quilometragem, b.porta_mala_L
+from carros as a
+inner join dimensoes as b on  a.idCarro = b.fk_idCarro
+where categoria = 'SUV';
+
+-- 11. QUANTIDADE DE OCUPANTES DOS TOYOTA
+SELECT a.fabricante, b.ocupantes
+from carros as a
+inner join dimensoes as b on  a.idCarro = b.fk_idCarro
+WHERE fabricante = 'Toyota';
+
+-- 12. Valor diaria menor que 100
+select *
+from clientes as a
+inner join locacao as b on a.idCliente = b.fk_idCliente
+where b.valorDiaria < 100;
+
+-- 13. Valor diaria maior que 100
+select *
+from clientes as a
+inner join locacao as b on a.idCliente = b.fk_idCliente
+where b.valorDiaria > 100;
+
+# 10. Crie 10 procedures com tema livre.
 
 -- 1. Procedure para registrar uma nova locação
 delimiter $$
